@@ -37,7 +37,7 @@
   "dependencies": {
     "node-fetch": "latest",
     "unzipper": "latest",
-    "dmg-license": "^latest"
+    "dmg-license": "latest"
   },
   "devDependencies": {
     "electron": "latest",
