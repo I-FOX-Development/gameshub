@@ -13,15 +13,36 @@ jobs:
     runs-on: ubuntu-latest  # Use Ubuntu for the CI environment
 
     steps:
+      # Step 1: Checkout code
       - uses: actions/checkout@v4  # Checkout the code
+
+      # Step 2: Set up Node.js with caching
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18.x'
+
+      # Step 3: Install dependencies
       - run: npm ci  # Install dependencies
-      - run: npm run build  # Build the app
+
+      # Step 4: Install Wine (for Windows builds)
+      - name: Install Wine for Windows builds
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt update
+          sudo apt install -y wine64 wine32
+
+      # Step 5: Install dependencies for macOS builds
+      - name: Install macOS build dependencies
+        run: |
+          sudo apt-get install -y libgnome-keyring-dev
+
+      # Step 6: Build the app for Linux, macOS, and Windows
+      - run: npm run build --linux --win --mac
+
+      # Step 7: Upload build artifacts
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: app-build-linux  # Name for the artifact
-          path: dist  # Replace with the path to your build artifact, e.g., .AppImage, .dmg, .exe
+          name: app-build-artifacts  # Name for the artifact
+          path: dist/  # Path to the folder where build artifacts are stored (e.g., .AppImage, .dmg, .exe)
