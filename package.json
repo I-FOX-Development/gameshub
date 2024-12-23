@@ -1,0 +1,51 @@
+{
+  "name": "innovadev-gameshub",
+  "productName": "InnovaDev GamesHub",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --mac --win --linux"
+  },
+  "build": {
+    "appId": "com.innovadev.gameshub",
+    "files": [
+      "index.html",
+      "main.js",
+      "preload.js",
+      "games/**/*",
+      "images/**/*"
+    ],
+    "mac": {
+      "icon": "images/icon.icns",
+      "target": [
+        "dmg"
+      ]
+    },
+    "dmg": {
+      "backgroundColor": "#222222"
+    },
+    "win": {
+      "target": "portable",
+      "icon": "images/icon.ico"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "images/icon.png"
+    }
+  },
+  "dependencies": {
+    "node-fetch": "latest",
+    "unzipper": "latest"
+  },
+  "devDependencies": {
+    "electron": "latest",
+    "electron-builder": "latest",
+    "electron-devtools-installer": "latest"
+  },
+  "keywords": [],
+  "author": "InnovaDev",
+  "license": "ISC",
+  "description": "",
+  "type": "module"
+}
