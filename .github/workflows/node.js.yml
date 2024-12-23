@@ -21,15 +21,18 @@ jobs:
         with:
           node-version: '18.x'
 
-      - run: npm ci  # Install dependencies (including dev dependencies)
+      - run: |
+          npm cache clean --force
+          npm install
+          rm -rf node_modules package-lock.json
+          npm install
+          npm ci
 
       - name: Install Wine for Windows builds
         run: |
           sudo dpkg --add-architecture i386
           sudo apt update
           sudo apt install -y wine64 wine32
-          npm cache clean --force
-          npm install
 
       - run: npm run build --win --linux  # Ensure macOS is not part of the build
 
