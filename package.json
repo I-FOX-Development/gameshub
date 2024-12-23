@@ -16,7 +16,7 @@
       "games/**/*",
       "images/**/*"
     ],
-    "mac": null
+    "mac": null,
     "win": {
       "target": "portable",
       "icon": "images/icon.ico"
