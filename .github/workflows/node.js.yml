@@ -1,30 +1,81 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
-name: Node.js CI
+name: Electron CI Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - "main"  # Trigger build when code is pushed to the main branch
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - "main"  # Trigger build when PR is made to the main branch
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Start with a Linux runner
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        os: [ubuntu-latest, macos-latest, windows-latest]  # Build for Linux, macOS, and Windows
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
+      # Checkout the latest code
+      - uses: actions/checkout@v4
+
+      # Set up Node.js with version matrix
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      # Install dependencies using npm
+      - run: npm ci
+
+      # Build the Electron app using electron-builder
+      - name: Build the Electron app
+        run: npm run build  # Ensure electron-builder is used in your package.json
+
+      # Upload build artifacts for Linux
+      - name: Upload build artifacts (Linux)
+        if: matrix.os == 'ubuntu-latest'  # Only upload for Ubuntu (Linux) runner
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-build-linux
+          path: dist/linux/*.AppImage  # Modify if needed to match your output folder
+
+      # Upload build artifacts for macOS
+      - name: Upload build artifacts (macOS)
+        if: matrix.os == 'macos-latest'  # Only on macOS runner
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-build-macos
+          path: dist/mac/*.dmg  # Modify if needed to match your output folder
+
+      # Upload build artifacts for Windows
+      - name: Upload build artifacts (Windows)
+        if: matrix.os == 'windows-latest'  # Only on Windows runner
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-build-windows
+          path: dist/win/*.exe  # Modify if needed to match your output folder
+
+      # Publish the builds to nightly.link or another distribution service
+      - name: Publish to nightly.link (Linux)
+        if: matrix.os == 'ubuntu-latest'  # Only on Ubuntu runner
+        run: |
+          curl -sSL https://nightly.link/create-release > release.sh
+          chmod +x release.sh
+          ./release.sh dist/linux/*.AppImage  # Publish Linux AppImage file to Nightly.link
+
+      - name: Publish to nightly.link (macOS)
+        if: matrix.os == 'macos-latest'  # Only on macOS runner
+        run: |
+          curl -sSL https://nightly.link/create-release > release.sh
+          chmod +x release.sh
+          ./release.sh dist/mac/*.dmg  # Publish macOS DMG file to Nightly.link
+
+      - name: Publish to nightly.link (Windows)
+        if: matrix.os == 'windows-latest'  # Only on Windows runner
+        run: |
+          curl -sSL https://nightly.link/create-release > release.sh
+          chmod +x release.sh
+          ./release.sh dist/win/*.exe  # Publish Windows EXE file to Nightly.link
