@@ -28,6 +28,8 @@ jobs:
           sudo dpkg --add-architecture i386
           sudo apt update
           sudo apt install -y wine64 wine32
+          npm cache clean --force
+          npm install
 
       - run: npm run build --win --linux  # Ensure macOS is not part of the build
 
