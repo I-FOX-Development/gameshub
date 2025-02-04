@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InnovaDev Gameshub</title>
+  <style>
+    :root {
+      --primary-bg: #09052c;
+      --secondary-bg: #23085a;
+      --accent-color: #761a9e;
+      --text-color: #f4e2fa;
+      --scale-factor: 1; /* Default scale factor */
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: var(--primary-bg);
+      color: var(--text-color);
+      overflow: hidden;
+      transform: scale(var(--scale-factor));
+      transform-origin: top left;
+      width: calc(100% / var(--scale-factor));
+      height: calc(100% / var(--scale-factor));
+    }
+
+    .nav-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: var(--secondary-bg);
+      padding: 20px 0;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 10;
+    }
+
+    .nav-bar a {
+      color: var(--text-color);
+      font-size: calc(18px * var(--scale-factor));
+      text-decoration: none;
+      margin: 0 15px;
+      padding: 10px;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-bar a:hover {
+      background-color: var(--accent-color);
+      transform: scale(1.1);
+    }
+
+    .main-content {
+      display: none;
+      padding: 20px;
+      margin-top: 80px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .search-bar {
+      width: 100%;
+      max-width: calc(400px * var(--scale-factor));
+      padding: 10px;
+      margin: 20px auto;
+      border-radius: 5px;
+      border: 1px solid var(--accent-color);
+      background-color: var(--secondary-bg);
+      color: var(--text-color);
+      font-size: calc(16px * var(--scale-factor));
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(calc(200px * var(--scale-factor)), 1fr));
+      grid-gap: calc(20px * var(--scale-factor));
+      padding: 20px;
+    }
+
+    .game-card {
+      background-color: var(--secondary-bg);
+      padding: calc(20px * var(--scale-factor));
+      text-align: center;
+      border-radius: calc(10px * var(--scale-factor));
+      transition: transform 0.2s, background-color 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .game-card img {
+      width: calc(150px * var(--scale-factor));
+      height: calc(150px * var(--scale-factor));
+      border-radius: calc(10px * var(--scale-factor));
+      object-fit: cover;
+    }
+
+    .game-card h3 {
+      margin-top: calc(10px * var(--scale-factor));
+      font-size: calc(16px * var(--scale-factor));
+      color: var(--text-color);
+    }
+
+    .game-card:hover {
+      transform: scale(1.05);
+      background-color: var(--accent-color);
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      background-color: #555;
+      height: calc(10px * var(--scale-factor));
+      margin-top: calc(10px * var(--scale-factor));
+      border-radius: calc(5px * var(--scale-factor));
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      background-color: var(--accent-color);
+      border-radius: calc(5px * var(--scale-factor));
+      transition: width 0.3s ease;
+    }
+
+    .settings-page {
+      display: none;
+      padding: 20px;
+      margin-top: 80px;
+    }
+
+    .settings-page h2 {
+      text-align: center;
+    }
+
+    .settings-page label {
+      display: block;
+      margin: calc(10px * var(--scale-factor)) 0 calc(5px * var(--scale-factor));
+    }
+
+    .settings-page select,
+    .settings-page input[type="range"] {
+      width: 100%;
+      max-width: calc(300px * var(--scale-factor));
+      padding: 10px;
+      border-radius: calc(5px * var(--scale-factor));
+      border: 1px solid var(--accent-color);
+      background-color: var(--secondary-bg);
+      color: var(--text-color);
+    }
+
+    .loading-spinner {
+      display: none;
+      border: calc(4px * var(--scale-factor)) solid var(--text-color);
+      border-top: calc(4px * var(--scale-factor)) solid var(--accent-color);
+      border-radius: 50%;
+      width: calc(40px * var(--scale-factor));
+      height: calc(40px * var(--scale-factor));
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    .copyright-text {
+      text-align: center;
+      font-size: calc(12px * var(--scale-factor));
+      color: var(--text-color);
+      margin-top: 20px;
+      opacity: 0.7;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="info-icon" title="This application is in beta.">
+    ⓘ Beta Version
+  </div>
+
+  <div class="nav-bar">
+    <a href="#games" onclick="navigateToPage('games')">Games</a>
+    <a href="#settings" onclick="navigateToPage('settings')">Settings</a>
+  </div>
+
+  <div class="main-content" id="main-content">
+    <div class="header">
+      <h1>InnovaDev Gameshub</h1>
+      <input type="text" class="search-bar" id="search-bar" placeholder="Search games..." oninput="filterGames()">
+    </div>
+    <div class="loading-spinner" id="loading-spinner"></div>
+    <div class="container" id="game-container"></div>
+  </div>
+
+  <div class="settings-page" id="settings-page">
+    <h2>Settings</h2>
+    <div>
+      <label for="theme-selector">Theme</label>
+      <select id="theme-selector" onchange="changeTheme()">
+        <option value="purple">Purple</option>
+        <option value="black">Black</option>
+        <option value="white">White</option>
+      </select>
+    </div>
+    <div>
+      <label for="resolution-selector">Display Size</label>
+      <select id="resolution-selector" onchange="changeResolution()">
+        <option value="Normal">Normal</option>
+        <option value="Small">Small</option>
+        <option value="Tiny">Tiny</option>
+      </select>
+    </div>
+    <div>
+      <label for="volume">Volume</label>
+      <input type="range" id="volume" min="0" max="1" step="0.1" onchange="adjustVolume(event)">
+    </div>
+    <!-- Add the "Report a Bug" button -->
+    <div>
+      <button onclick="reportBug()" style="margin-top: 20px; padding: 10px; background-color: var(--accent-color); color: var(--text-color); border: none; border-radius: 5px; cursor: pointer;">
+        Report a Bug
+      </button>
+    </div>
+    <!-- Add the copyright text -->
+    <div class="copyright-text">
+      InnovaDev Entertainment Copyright 2025
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    let gamesData = [];
+
+    // Load saved theme and resolution from localStorage
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('theme') || 'purple';
+      const savedResolution = localStorage.getItem('resolution') || '1080p';
+      document.getElementById('theme-selector').value = savedTheme;
+      document.getElementById('resolution-selector').value = savedResolution;
+      applyTheme(savedTheme);
+      applyResolution(savedResolution);
+    });
+
+    function applyTheme(theme) {
+      const root = document.documentElement;
+      if (theme === 'purple') {
+        root.style.setProperty('--primary-bg', '#09052c');
+        root.style.setProperty('--secondary-bg', '#23085a');
+        root.style.setProperty('--accent-color', '#761a9e');
+        root.style.setProperty('--text-color', '#f4e2fa');
+      } else if (theme === 'black') {
+        root.style.setProperty('--primary-bg', '#000000');
+        root.style.setProperty('--secondary-bg', '#1a1a1a');
+        root.style.setProperty('--accent-color', '#333333');
+        root.style.setProperty('--text-color', '#ffffff');
+      } else if (theme === 'white') {
+        root.style.setProperty('--primary-bg', '#ffffff');
+        root.style.setProperty('--secondary-bg', '#f0f0f0');
+        root.style.setProperty('--accent-color', '#761a9e');
+        root.style.setProperty('--text-color', '#000000');
+      }
+    }
+
+    function changeTheme() {
+      const selectedTheme = document.getElementById('theme-selector').value;
+      localStorage.setItem('theme', selectedTheme);
+      applyTheme(selectedTheme);
+    }
+
+    function applyResolution(resolution) {
+      const root = document.documentElement;
+      let scaleFactor = 1;
+      switch (resolution) {
+        case 'Normal':
+          scaleFactor = 1;
+          break;
+        case 'Small':
+          scaleFactor = 0.9;
+          break;
+        case 'Tiny':
+          scaleFactor = 0.75;
+          break;
+      }
+      root.style.setProperty('--scale-factor', scaleFactor);
+      console.log(`Resolution set to: ${resolution}, Scale factor: ${scaleFactor}`);
+    }
+
+    function changeResolution() {
+      const selectedResolution = document.getElementById('resolution-selector').value;
+      localStorage.setItem('resolution', selectedResolution);
+      applyResolution(selectedResolution);
+    }
+
+    function reportBug() {
+      // Open the Discord invite link in the default browser
+      window.open('https://discord.gg/qz9DABssg9', '_blank');
+    }
+
+    window.onload = function() {
+      fetchGames();
+      setInterval(fetchGames, 1000);
+    };
+
+    function fetchGames() {
+      const loadingSpinner = document.getElementById('loading-spinner');
+      loadingSpinner.style.display = 'block';
+
+      fetch('https://raw.githubusercontent.com/I-FOX-Development/gameshub_backend/refs/heads/main/games.json')
+        .then(response => response.json())
+        .then(games => {
+          gamesData = games;
+          renderGames(games);
+          loadingSpinner.style.display = 'none';
+        })
+        .catch(err => {
+          console.error('Error loading games:', err);
+          alert('Failed to load games. Please check your internet connection.');
+          loadingSpinner.style.display = 'none';
+        });
+    }
+
+    function renderGames(games) {
+      const gameContainer = document.getElementById('game-container');
+      gameContainer.innerHTML = '';
+
+      games.forEach(game => {
+        const gameCard = document.createElement('div');
+        gameCard.className = 'game-card';
+        gameCard.innerHTML = `
+          <div>
+            <button onclick="downloadAndInstallGame('${game.name}', '${game.zipLink}', this)">
+              <img src="${game.image}" alt="${game.name}">
+              <h3>${game.name}</h3>
+            </button>
+            <div class="progress-bar-container">
+              <div class="progress-bar" id="progress-${game.name}"></div>
+            </div>
+          </div>`;
+        gameContainer.appendChild(gameCard);
+      });
+    }
+
+    function filterGames() {
+      const searchQuery = document.getElementById('search-bar').value.toLowerCase();
+      const filteredGames = gamesData.filter(game => game.name.toLowerCase().includes(searchQuery));
+      renderGames(filteredGames);
+    }
+
+    function navigateToPage(page) {
+      if (page === 'games') {
+        document.querySelector('.main-content').style.display = 'block';
+        document.querySelector('#settings-page').style.display = 'none';
+      } else if (page === 'settings') {
+        document.querySelector('.main-content').style.display = 'none';
+        document.querySelector('#settings-page').style.display = 'block';
+      }
+    }
+
+    function downloadAndInstallGame(gameName, zipLink, button) {
+      const progressBar = document.getElementById(`progress-${gameName}`);
+      ipcRenderer.send('download-game', { gameName, zipLink });
+
+      ipcRenderer.on('download-progress', (event, { gameName: name, progress }) => {
+        if (name === gameName) {
+          progressBar.style.width = `${progress}%`;
+        }
+      });
+
+      ipcRenderer.on('download-complete', (event, { gameName: name, error }) => {
+        if (name === gameName) {
+          progressBar.style.width = '100%';
+          if (error) {
+            alert(`Failed to download or install ${gameName}: ${error}`);
+          } else {
+            alert(`${gameName} has been successfully downloaded and is now ready to run!`);
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
